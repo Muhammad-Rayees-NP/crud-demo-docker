@@ -1,20 +1,33 @@
-version: "3.8"
+version: '3.8'
+
 services:
+  # Spring Boot Application
   app:
-    build: .
+    image: your-app-image  # Use your application image or build it with Dockerfile
+    build:
+      context: .
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/mydatabase
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=secretpassword
+      - SPRING_APPLICATION_NAME=crud-demo-docker
     ports:
       - "8080:8080"
     depends_on:
       - postgres
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/user_management1
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=admin
+
+  # PostgreSQL Database
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: user_management1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: mydatabase
     ports:
       - "5432:5432"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
