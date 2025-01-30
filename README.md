@@ -24,8 +24,8 @@ Setup & Installation
 
 1. Clone the Repository
 
-[git clone https://github.com/yourusername/crud-demo-docker.git
- cd crud-demo-docker](https://github.com/Muhammad-Rayees-NP/crud-demo-docker.git
+[[git clone https://github.com/yourusername/crud-demo-docker.git
+https://github.com/Muhammad-Rayees-NP/crud-demo-docker.git](https://github.com/Muhammad-Rayees-NP/crud-demo-docker.git)
 
 2. Build & Run the Application
 
