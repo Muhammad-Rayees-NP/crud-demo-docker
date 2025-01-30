@@ -36,20 +36,23 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users with pagination")
-    public Page<User> getAllUsers(
+    @GetMapping
+    public ResponseEntity<Page<User>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        return userService.getAllUsers(pageable);
-    }
+        Page<User> users = userService.getAllUsers(pageable);
 
+        return ResponseEntity.ok(users);
+    }
 
     @Operation(summary = " Update a user")
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @Valid @RequestBody User user) {
         return ResponseEntity.ok(userService.updateUser(id, user));
     }
+
     @Operation(summary = " Delete a user")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
