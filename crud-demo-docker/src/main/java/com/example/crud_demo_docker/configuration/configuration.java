@@ -6,12 +6,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public class configuration { // ✅ Renamed to avoid conflict
+public class configuration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // ✅ Disable CSRF for API access
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui/**",
@@ -20,8 +20,8 @@ public class configuration { // ✅ Renamed to avoid conflict
                                 "/v2/api-docs.yaml",
                                 "/v2/api-docs.json",
                                 "/webjars/**"
-                        ).permitAll() // ✅ Allow unrestricted access to Swagger
-                        .anyRequest().permitAll() // ✅ Allow all requests
+                        ).permitAll()
+                        .anyRequest().permitAll()
                 );
 
         return http.build();

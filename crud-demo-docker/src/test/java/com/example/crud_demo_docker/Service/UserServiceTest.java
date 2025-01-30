@@ -33,16 +33,9 @@ class UserServiceTest {
 
     @Test
     void createUser() {
-        // Mock the behavior of userRepository.save
         when(userRepository.save(user)).thenReturn(user);
-
-        // Call the method to test
         User createdUser = userService.createUser(user);
-
-        // Verify the interaction with the repository
         verify(userRepository).save(user);
-
-        // Assert that the created user is the same as the mock
         assertEquals(user, createdUser);
     }
 
@@ -58,14 +51,8 @@ class UserServiceTest {
         // Mock the behavior of finding the user and saving the updated user
         when(userRepository.findById(user.getId())).thenReturn(java.util.Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
-
-        // Call the updateUser method
         User result = userService.updateUser(user.getId(), updatedUser);
-
-        // Verify interactions and assert the result
         verify(userRepository).findById(user.getId());
-
-        // Use ArgumentCaptor to capture the argument passed to save()
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
 
@@ -75,7 +62,7 @@ class UserServiceTest {
         assertEquals("updated@example.com", capturedUser.getEmail());
         assertEquals("newpassword", capturedUser.getPassword());
 
-        // Assert the updated values
+        //  updated values
         assertEquals("Updated Name", result.getName());
         assertEquals("updated@example.com", result.getEmail());
         assertEquals("newpassword", result.getPassword());
@@ -83,46 +70,27 @@ class UserServiceTest {
 
     @Test
     void deleteUser() {
-        // Assuming that the user exists in the repository
         user.setId(1L);
         when(userRepository.existsById(user.getId())).thenReturn(true);
-
-        // Call the deleteUser method
         userService.deleteUser(user.getId());
-
-        // Verify that the deleteById method was called
         verify(userRepository).deleteById(user.getId());
     }
 
     @Test
     void getUserById() {
-        // Assuming that the user exists in the repository
         user.setId(1L);
         when(userRepository.findById(user.getId())).thenReturn(java.util.Optional.of(user));
-
-        // Call the getUserById method
         User fetchedUser = userService.getUserById(user.getId());
-
-        // Verify the interaction with the repository
         verify(userRepository).findById(user.getId());
-
-        // Assert that the fetched user is the same as the mock
         assertEquals(user, fetchedUser);
     }
 
     @Test
     void getUserByIdNotFound() {
-        // Assuming that the user does not exist
         user.setId(2L);
         when(userRepository.findById(user.getId())).thenReturn(java.util.Optional.empty());
-
-        // Call the getUserById method
         User fetchedUser = userService.getUserById(user.getId());
-
-        // Verify the interaction with the repository
         verify(userRepository).findById(user.getId());
-
-        // Assert that the fetched user is null
         assertNull(fetchedUser);
     }
 }
