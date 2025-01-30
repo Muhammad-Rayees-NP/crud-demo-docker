@@ -28,11 +28,9 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public Page<User> getAllUsers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<User> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
-
 
     @Transactional
     public User updateUser(Long id, User userDetails) {
