@@ -51,13 +51,8 @@ class UserServiceTest {
         savedUser.setName("John Doe");
         savedUser.setEmail("john@example.com");
         savedUser.setPassword(passwordEncoder.encode("mySecretPass"));
-
         when(userService.createUser(any(User.class))).thenReturn(savedUser); // Mock behavior
-
-        // Act
         ResponseEntity<User> response = userController.createUser(user);
-
-        // Assert
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
@@ -67,18 +62,12 @@ class UserServiceTest {
 
     @Test
     void testGetUser() {
-        // Arrange
         User user = new User();
         user.setId(1L);
         user.setName("John Doe");
         user.setEmail("john@example.com");
-
         when(userService.getUser(1L)).thenReturn(Optional.of(user)); // Mock behavior
-
-        // Act
         ResponseEntity<User> response = userController.getUser(1L);
-
-        // Assert
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
@@ -87,13 +76,8 @@ class UserServiceTest {
 
     @Test
     void testDeleteUser() {
-        // Arrange
         doNothing().when(userService).deleteUser(1L);
-
-        // Act
         ResponseEntity<Void> response = userController.deleteUser(1L);
-
-        // Assert
         assertNotNull(response);
         assertEquals(204, response.getStatusCodeValue());
         verify(userService, times(1)).deleteUser(1L); // Verify method was called once
@@ -101,52 +85,39 @@ class UserServiceTest {
 
     @Test
     void testCreateUserWithEmptyPassword() {
-        // Arrange
         User user = new User();
         user.setName("Jane Doe");
         user.setEmail("jane@example.com");
         user.setPassword("");
 
         when(userService.createUser(any(User.class))).thenThrow(new RuntimeException("Password cannot be empty"));
-
-        // Act & Assert
         assertThrows(RuntimeException.class, () -> userController.createUser(user));
     }
 
     @Test
     void testUpdateUserNotFound() {
-        // Arrange
         User updatedUser = new User();
         updatedUser.setName("Updated Name");
         updatedUser.setEmail("updated@example.com");
 
         when(userService.updateUser(anyLong(), any(User.class))).thenThrow(new RuntimeException("User not found"));
-
-        // Act & Assert
         assertThrows(RuntimeException.class, () -> userController.updateUser(999L, updatedUser));
     }
 
     @Test
     void testUpdateUserPasswordHashing() {
-        // Arrange
         User user = new User();
         user.setId(1L);
         user.setName("User");
         user.setEmail("user@example.com");
         user.setPassword("newPassword");
-
         User updatedUser = new User();
         updatedUser.setId(1L);
         updatedUser.setName("User");
         updatedUser.setEmail("user@example.com");
         updatedUser.setPassword(passwordEncoder.encode("newPassword"));
-
         when(userService.updateUser(eq(1L), any(User.class))).thenReturn(updatedUser);
-
-        // Act
         ResponseEntity<User> response = userController.updateUser(1L, user);
-
-        // Assert
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
@@ -155,36 +126,23 @@ class UserServiceTest {
 
     @Test
     void testGetUserNotFound() {
-        // Arrange
         when(userService.getUser(anyLong())).thenReturn(Optional.empty());
-
-        // Act
         ResponseEntity<User> response = userController.getUser(999L);
-
-        // Assert
         assertEquals(404, response.getStatusCodeValue());
     }
 
 
     @Test
     void testDeleteUserNotFound() {
-        // Arrange
         doThrow(new RuntimeException("User not found"))
                 .when(userService).deleteUser(anyLong());
-
-        // Act & Assert
         assertThrows(RuntimeException.class, () -> userController.deleteUser(999L));
     }
 
     @Test
     void testDeleteUserSuccessful() {
-        // Arrange
         doNothing().when(userService).deleteUser(anyLong());
-
-        // Act
         ResponseEntity<Void> response = userController.deleteUser(1L);
-
-        // Assert
         assertEquals(204, response.getStatusCodeValue());
         verify(userService, times(1)).deleteUser(1L);
     }
@@ -199,8 +157,6 @@ class UserServiceTest {
 
         when(userService.createUser(any(User.class)))
                 .thenThrow(new RuntimeException("Email already exists"));
-
-        // Act & Assert
         assertThrows(RuntimeException.class, () -> userController.createUser(user));
     }
 

@@ -48,16 +48,12 @@ public class UserService {
     public User updateUser(Long id, User userDetails) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Update only non-null fields
         if (userDetails.getName() != null) {
             user.setName(userDetails.getName());
         }
         if (userDetails.getEmail() != null) {
             user.setEmail(userDetails.getEmail());
         }
-
-        // Check if password is provided, then hash it before updating
         if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
         }
