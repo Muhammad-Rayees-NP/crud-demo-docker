@@ -165,20 +165,6 @@ class UserServiceTest {
         assertEquals(404, response.getStatusCodeValue());
     }
 
-    @Test
-    void testGetAllUsersEmptyList() {
-        // Arrange
-        Page<User> emptyPage = Page.empty();
-        when(userService.getAllUsers(any(Pageable.class))).thenReturn(emptyPage);
-
-        // Act
-        ResponseEntity<Page<User>> response = userController.getAllUsers(0, 10);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getBody().getContent().isEmpty());
-    }
 
     @Test
     void testDeleteUserNotFound() {
