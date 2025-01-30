@@ -1,5 +1,6 @@
 package com.example.crud_demo_docker.Service;
 
+import com.example.crud_demo_docker.Controller.UserController;
 import com.example.crud_demo_docker.Entity.User;
 import com.example.crud_demo_docker.Repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,89 +9,127 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.ArgumentCaptor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
 
-    @InjectMocks
+    @Mock
     private UserService userService;
 
-    @Mock
-    private UserRepository userRepository;
+    @InjectMocks
+    private UserController userController;
 
-    private User user;
+    private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        user = new User();
-        user.setName("John");
+        passwordEncoder = new BCryptPasswordEncoder(); // Initialize encoder
+    }
+
+    @Test
+    void testCreateUser() {
+        User user = new User();
+        user.setName("John Doe");
         user.setEmail("john@example.com");
-        user.setPassword("password");
+        user.setPassword("mySecretPass");
+        User savedUser = new User();
+        savedUser.setId(1L);
+        savedUser.setName("John Doe");
+        savedUser.setEmail("john@example.com");
+        savedUser.setPassword(passwordEncoder.encode("mySecretPass")); // Hashed password
+
+        when(userService.createUser(any(User.class))).thenReturn(savedUser);
+
+        ResponseEntity<User> response = userController.createUser(user);
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals("John Doe", response.getBody().getName());
+        assertNotEquals("mySecretPass", response.getBody().getPassword()); // Ensuring password is hashed
     }
 
     @Test
-    void createUser() {
-        when(userRepository.save(user)).thenReturn(user);
-        User createdUser = userService.createUser(user);
-        verify(userRepository).save(user);
-        assertEquals(user, createdUser);
-    }
-
-    @Test
-    void updateUser() {
-        // Assuming that the user with id 1 exists in the repository
+    void testUpdateUser() {
+        User user = new User();
         user.setId(1L);
-        User updatedUser = new User();
-        updatedUser.setName("Updated Name");
-        updatedUser.setEmail("updated@example.com");
-        updatedUser.setPassword("newpassword");
+        user.setName("Updated Name");
+        user.setEmail("updated@example.com");
+        user.setPassword("newSecretPass");
 
-        // Mock the behavior of finding the user and saving the updated user
-        when(userRepository.findById(user.getId())).thenReturn(java.util.Optional.of(user));
-        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
-        User result = userService.updateUser(user.getId(), updatedUser);
-        verify(userRepository).findById(user.getId());
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
+        User existingUser = new User();
+        existingUser.setId(1L);
+        existingUser.setName("John Doe");
+        existingUser.setEmail("john@example.com");
+        existingUser.setPassword(passwordEncoder.encode("oldPassword"));
 
-        // Assert that the captured user object is the updated one
-        User capturedUser = userCaptor.getValue();
-        assertEquals("Updated Name", capturedUser.getName());
-        assertEquals("updated@example.com", capturedUser.getEmail());
-        assertEquals("newpassword", capturedUser.getPassword());
+        when(userService.updateUser(anyLong(), any(User.class))).thenReturn(user);
 
-        //  updated values
-        assertEquals("Updated Name", result.getName());
-        assertEquals("updated@example.com", result.getEmail());
-        assertEquals("newpassword", result.getPassword());
+        ResponseEntity<User> response = userController.updateUser(1L, user);
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals("Updated Name", response.getBody().getName());
+        assertNotEquals("newSecretPass", response.getBody().getPassword()); // Ensuring password is hashed
     }
 
     @Test
-    void deleteUser() {
+    void testGetUser() {
+        User user = new User();
         user.setId(1L);
-        when(userRepository.existsById(user.getId())).thenReturn(true);
-        userService.deleteUser(user.getId());
-        verify(userRepository).deleteById(user.getId());
+        user.setName("John Doe");
+        user.setEmail("john@example.com");
+        user.setPassword("hashedPassword");
+
+        when(userService.getUser(anyLong())).thenReturn(Optional.of(user));
+
+        ResponseEntity<User> response = userController.getUser(1L);
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("John Doe", response.getBody().getName());
     }
 
     @Test
-    void getUserById() {
+    void testGetAllUsers() {
+        User user = new User();
         user.setId(1L);
-        when(userRepository.findById(user.getId())).thenReturn(java.util.Optional.of(user));
-        User fetchedUser = userService.getUserById(user.getId());
-        verify(userRepository).findById(user.getId());
-        assertEquals(user, fetchedUser);
+        user.setName("John Doe");
+        user.setEmail("john@example.com");
+
+        Page<User> users = new PageImpl<>(Collections.singletonList(user));
+
+        when(userService.getAllUsers(any(Pageable.class))).thenReturn(users);
+
+        ResponseEntity<Page<User>> response = userController.getAllUsers(0, 10);
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().getContent().size());
+        assertEquals("John Doe", response.getBody().getContent().get(0).getName());
     }
 
     @Test
-    void getUserByIdNotFound() {
-        user.setId(2L);
-        when(userRepository.findById(user.getId())).thenReturn(java.util.Optional.empty());
-        User fetchedUser = userService.getUserById(user.getId());
-        verify(userRepository).findById(user.getId());
-        assertNull(fetchedUser);
+    void testDeleteUser() {
+        doNothing().when(userService).deleteUser(anyLong());
+
+        ResponseEntity<Void> response = userController.deleteUser(1L);
+
+        assertNotNull(response);
+        assertEquals(204, response.getStatusCodeValue());
+        verify(userService, times(1)).deleteUser(1L);
     }
 }
