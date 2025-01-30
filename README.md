@@ -35,8 +35,7 @@ Setup & Installation
  docker compose build
  docker compose up
 
-
-🛠 Running Tests
+ Running Tests
 
 Run unit tests using:
 
