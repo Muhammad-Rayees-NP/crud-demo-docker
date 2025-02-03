@@ -99,7 +99,7 @@ http://localhost:8080/swagger-ui.html
 
 ## Notes
 
-- This project supports **pagination** for the user management API.
+- This project supports **pagination** for the CRUD API.
 - **Spring Security** is implemented for authentication, and password encryption is done using **BCrypt**.
 - You can choose between **H2** (for in-memory database) or **MySQL** (for persistent storage) as your database.
 - **Prometheus** and **Grafana** are configured to monitor and visualize application metrics, including system resource usage and application-specific data.
